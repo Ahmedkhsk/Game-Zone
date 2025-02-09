@@ -1,30 +1,34 @@
-using Microsoft.EntityFrameworkCore;
-using Task.Models;
-using Task.Repository;
+using Project.Repository;
 
-namespace Task
+namespace Project
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddScoped<IInstructorRepository, InstructorRepository>();
-            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-            builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-            builder.Services.AddScoped<ITraineeRepository, TraineeRepository>();
-            builder.Services.AddScoped<ICrsResultRepository, CrsResultRepository>();
-
+            //DB
+            //var connectionString = builder.Configuration.GetConnectionString("Db") 
+            //    ?? throw new InvalidOperationException("No Connetion String was Found"); 
+       
             builder.Services.AddDbContext<Context>(
-                options => { options.UseSqlServer(builder.Configuration.GetConnectionString("cs")); }
+                options =>
+                {
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("Db"));
+                }
                 );
 
+            //Register
+            builder.Services.AddScoped<IGameRepository,GameRepository>();
+            builder.Services.AddScoped<IDeviceRepository,DeviceRepository>();
+            builder.Services.AddScoped<ICategorieRepository,CategorieRepository>();
+            builder.Services.AddScoped<IGameDeviceRepository,GameDeviceRepository>();
 
-            builder.Services.AddSession();
 
             var app = builder.Build();
 
@@ -37,10 +41,7 @@ namespace Task
             }
 
             app.UseHttpsRedirection();
-            
             app.UseStaticFiles();
-
-            app.UseSession();
 
             app.UseRouting();
 

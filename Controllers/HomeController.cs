@@ -1,28 +1,21 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Task.Models;
 
-namespace Task.Controllers
+namespace Project.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IGameRepository _gameRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IGameRepository gameRepository)
         {
             _logger = logger;
+            _gameRepository = gameRepository;
         }
-
         public IActionResult Index()
         {
-            return View();
+            return View("Index", _gameRepository.getAll());
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

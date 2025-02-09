@@ -7557,11 +7557,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\C#\\7-MVC\\Project\\Task\\Task.csproj",
-      "projectName": "Task",
-      "projectPath": "E:\\C#\\7-MVC\\Project\\Task\\Task.csproj",
+      "projectUniqueName": "E:\\C#\\Projects\\Project Moves\\Project\\Project.csproj",
+      "projectName": "Project",
+      "projectPath": "E:\\C#\\Projects\\Project Moves\\Project\\Project.csproj",
       "packagesPath": "C:\\Users\\AHMED\\.nuget\\packages\\",
-      "outputPath": "E:\\C#\\7-MVC\\Project\\Task\\obj\\",
+      "outputPath": "E:\\C#\\Projects\\Project Moves\\Project\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\AHMED\\AppData\\Roaming\\NuGet\\NuGet.Config",

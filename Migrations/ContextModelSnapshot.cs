@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Task.Models;
+using Project.Models;
 
 #nullable disable
 
-namespace Task.Migrations
+namespace Project.Migrations
 {
     [DbContext(typeof(Context))]
     partial class ContextModelSnapshot : ModelSnapshot
@@ -21,45 +21,13 @@ namespace Task.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Task.Models.Course", b =>
+            modelBuilder.Entity("Project.Models.Categorie", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DepartmentID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("degree")
-                        .HasColumnType("int");
-
-                    b.Property<int>("minDegree")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentID");
-
-                    b.ToTable("Course");
-                });
-
-            modelBuilder.Entity("Task.Models.Department", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Manager")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -67,10 +35,42 @@ namespace Task.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department");
+                    b.ToTable("Categorie");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Action"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Adventure"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Racing"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Fighting"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Film"
+                        });
                 });
 
-            modelBuilder.Entity("Task.Models.Instractor", b =>
+            modelBuilder.Entity("Project.Models.Device", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,17 +78,7 @@ namespace Task.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CourseID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DepartmentID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Imag")
+                    b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -96,19 +86,38 @@ namespace Task.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Salary")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseID");
+                    b.ToTable("Device");
 
-                    b.HasIndex("DepartmentID");
-
-                    b.ToTable("Instractor");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Icon = "bi bi-playstation",
+                            Name = "PlayStation"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Icon = "bi bi-xbox",
+                            Name = "xbox"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Icon = "bi bi-nintendo-switch",
+                            Name = "Nintendo Switch"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Icon = "bi bi-pc-display",
+                            Name = "PC"
+                        });
                 });
 
-            modelBuilder.Entity("Task.Models.Trainee", b =>
+            modelBuilder.Entity("Project.Models.Game", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,14 +125,14 @@ namespace Task.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<int>("CategorieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Cover")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DepartmentID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Imag")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -131,109 +140,66 @@ namespace Task.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("grade")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentID");
+                    b.HasIndex("CategorieId");
 
-                    b.ToTable("Trainee");
+                    b.ToTable("Game");
                 });
 
-            modelBuilder.Entity("Task.Models.crsResult", b =>
+            modelBuilder.Entity("Project.Models.GameDevice", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseID")
+                    b.Property<int>("GameId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TraineeID")
-                        .HasColumnType("int");
+                    b.HasKey("DeviceId", "GameId");
 
-                    b.Property<int>("degree")
-                        .HasColumnType("int");
+                    b.HasIndex("GameId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseID");
-
-                    b.HasIndex("TraineeID");
-
-                    b.ToTable("crsResult");
+                    b.ToTable("GameDevice");
                 });
 
-            modelBuilder.Entity("Task.Models.Course", b =>
+            modelBuilder.Entity("Project.Models.Game", b =>
                 {
-                    b.HasOne("Task.Models.Department", "Department")
-                        .WithMany("Courses")
-                        .HasForeignKey("DepartmentID")
+                    b.HasOne("Project.Models.Categorie", "Categorie")
+                        .WithMany("Games")
+                        .HasForeignKey("CategorieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Categorie");
                 });
 
-            modelBuilder.Entity("Task.Models.Instractor", b =>
+            modelBuilder.Entity("Project.Models.GameDevice", b =>
                 {
-                    b.HasOne("Task.Models.Course", "Course")
+                    b.HasOne("Project.Models.Device", "Device")
                         .WithMany()
-                        .HasForeignKey("CourseID")
+                        .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Task.Models.Department", "Department")
-                        .WithMany("Instractors")
-                        .HasForeignKey("DepartmentID")
+                    b.HasOne("Project.Models.Game", "Game")
+                        .WithMany("Devices")
+                        .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
+                    b.Navigation("Device");
 
-                    b.Navigation("Department");
+                    b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("Task.Models.Trainee", b =>
+            modelBuilder.Entity("Project.Models.Categorie", b =>
                 {
-                    b.HasOne("Task.Models.Department", "Department")
-                        .WithMany("Trainees")
-                        .HasForeignKey("DepartmentID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
+                    b.Navigation("Games");
                 });
 
-            modelBuilder.Entity("Task.Models.crsResult", b =>
+            modelBuilder.Entity("Project.Models.Game", b =>
                 {
-                    b.HasOne("Task.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Task.Models.Trainee", "Trainee")
-                        .WithMany()
-                        .HasForeignKey("TraineeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Trainee");
-                });
-
-            modelBuilder.Entity("Task.Models.Department", b =>
-                {
-                    b.Navigation("Courses");
-
-                    b.Navigation("Instractors");
-
-                    b.Navigation("Trainees");
+                    b.Navigation("Devices");
                 });
 #pragma warning restore 612, 618
         }

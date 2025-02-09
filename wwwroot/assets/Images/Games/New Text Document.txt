@@ -1,0 +1,248 @@
+namespace Project.Controllers
+{
+    public class GamesController : Controller
+    {
+        private readonly ICategorieRepository categorieRepo;
+        private readonly IGameRepository gameRepository;
+        private readonly IDeviceRepository deviceRepository;
+
+        public GamesController(ICategorieRepository CategorieRepo,IGameRepository gameRepository,IDeviceRepository deviceRepository)
+        {
+            categorieRepo = CategorieRepo;
+            this.gameRepository = gameRepository;
+            this.deviceRepository = deviceRepository;
+        }
+        public IActionResult Index()
+        {
+            return View("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            CreateGameFormVM createGameFormVM = new CreateGameFormVM()
+            {
+                Categories = categorieRepo.SelectAll(),
+                Devices = deviceRepository.SelectAll()
+            };
+
+            return View("Create", createGameFormVM);
+        }
+
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveCreate(CreateGameFormVM model)
+        {
+            if(ModelState.IsValid)
+            {
+                await gameRepository.Add(model);
+                return RedirectToAction("Index");
+;           }
+            model.Categories = categorieRepo.SelectAll();
+            model.Devices = deviceRepository.SelectAll();
+            return View("Create", model);
+        }
+    }
+}
+
+
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Immutable;
+
+namespace Project.Repository
+{
+    public class GameRepository : IGameRepository
+    {
+        private readonly Context context;
+        private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly string _imagePath;
+        public GameRepository(Context context,IWebHostEnvironment webHostEnvironment)
+        {
+            this.context = context;
+            this.webHostEnvironment = webHostEnvironment;
+            _imagePath = $"{webHostEnvironment.WebRootPath}/assets/Images/Games";
+        }
+
+        public async Task Add(CreateGameFormVM game)
+        {
+
+            var coverNaem = $"{Guid.NewGuid()}{Path.GetExtension(game.Cover.FileName)}";
+            var path = Path.Combine(_imagePath, coverNaem);
+
+            using var stream = File.Create(path);
+            await game.Cover.CopyToAsync(stream);
+
+            stream.Dispose();
+
+            Game gameModel = new Game();
+            gameModel.Name = game.Name;
+            gameModel.Description = game.Description;
+            gameModel.Cover = coverNaem;
+            gameModel.CategorieId = game.CategorieId;
+            gameModel.Devices = game.SelectedDevices.Select(d => new GameDevice { DeviceId = d }).ToList();
+
+            context.Add(gameModel);
+
+            context.SaveChanges();
+        }
+        
+        public void Update(Game obj)
+        {
+            context.Update(obj);
+        }
+        public void Remove(Game obj)
+        {
+            context.Remove(obj);
+        }
+        public Game GetByID(int id)
+        {
+            return context.Games.FirstOrDefault(e => e.Id == id);
+        }
+        public void Save()
+        {
+            context.SaveChanges();
+        }
+    }
+}
+
+
+
+namespace Project.ViewModel
+{
+    public class CreateGameFormVM
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+
+        [Display(Name = "Categorie")]
+        public int CategorieId { get; set; }
+
+        [Display(Name = "Suported Devices")]
+        public List<int> SelectedDevices { get; set; }
+
+        public IFormFile Cover { get; set; }
+
+        public IEnumerable<SelectListItem> Devices { get; set; }
+        public IEnumerable<SelectListItem> Categories { get; set; }
+    }
+}
+
+
+@model CreateGameFormVM
+
+@{
+    ViewData["Title"] = "Add Game";
+}
+
+<h5>
+    <i class="bi bi-plus-circle-dotted"></i>
+    Add a new Game
+</h5>
+<form asp-controller="Games" asp-action="SaveCreate" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label mt-4"></label>
+                <input asp-for="Name" class="form-control" placeholder="Name"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategorieId" class="form-label mt-4"></label>
+                <select class="form-select" asp-for="CategorieId" asp-items="Model.Categories">
+                    <option> Select Categorie</option>
+                </select>
+                <span asp-validation-for="CategorieId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SelectedDevices" class="form-label mt-4"></label>
+                <select class="form-select" asp-for="SelectedDevices" asp-items="Model.Devices">
+                    <option>Select Devices</option>
+                </select>
+                <span asp-validation-for="SelectedDevices" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="form-label mt-4"></label>
+                <textarea asp-for="Description" class="form-control" placeholder="Description"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cover" class="form-label mt-4"></label>
+                <input type="file" asp-for="Cover" class="form-control"/>
+                <small class="form-text text-muted">Only .jpg, .png files are allowed with max size 1MB.</small>
+                <span asp-validation-for="Cover" class="text-danger"></span>
+            </div>
+            <input type="submit" value="SaveCreate" class="btn btn-light text-black mt-4" />
+        </div>
+        <div class="col-md-6">
+
+        </div>
+    </div>
+</form>
+
+-------------------------
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Project.Models
+{
+    public class BaseEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}
+
+namespace Project.Repository
+{
+    public interface IGameDeviceRepository
+    {
+        public void Add(GameDevice obj);
+        public void Remove(GameDevice obj);
+        public void Update(GameDevice obj);
+        public GameDevice GetByID(int DeviceID,int GameID);
+        public void Save();
+    }
+}
+namespace Project.Models
+{
+    public class Context : DbContext
+    {
+        public DbSet<Game> Games { get; set; }
+        public DbSet<Device> Devices { get; set; }
+        public DbSet<Categorie> Categories { get; set; }
+        public DbSet<GameDevice> GameDevice { get; set; }
+
+        public Context(DbContextOptions options):base(options)
+        {
+            
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GameDevice>()
+                .HasKey(e => new { e.DeviceId, e.GameId });
+
+            modelBuilder.Entity<Device>()
+                .HasData(new Device[]
+                {
+                    new Device {Id = 1 , Name = "PlayStation" , Icon = "bi bi-playstation"},
+                    new Device {Id = 2 , Name = "xbox" , Icon = "bi bi-xbox"},
+                    new Device {Id = 3 , Name = "Nintendo Switch" , Icon = "bi bi-nintendo-switch"},
+                    new Device {Id = 4 , Name = "PC" , Icon = "bi bi-pc-display"},
+                });
+
+            modelBuilder.Entity<Categorie>()
+            .HasData(new Categorie[]
+            {
+                new Categorie {Id = 1 , Name = "Sports" },
+                new Categorie {Id = 2 , Name = "Action" },
+                new Categorie {Id = 3 , Name = "Adventure" },
+                new Categorie {Id = 4 , Name = "Racing" },
+                new Categorie {Id = 5 , Name = "Fighting" },
+                new Categorie {Id = 6 , Name = "Film" },
+            });
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
